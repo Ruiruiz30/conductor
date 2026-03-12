@@ -959,7 +959,7 @@ public class WorkflowExecutorOps implements WorkflowExecutor {
                 taskStatusListener.onTaskInProgress(task);
                 break;
             case SCHEDULED:
-                // no-op, already done in addTaskToQueue
+            // no-op, already done in addTaskToQueue
             default:
                 break;
         }
