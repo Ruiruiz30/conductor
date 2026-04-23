@@ -21,6 +21,8 @@ import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -43,6 +45,8 @@ import jakarta.annotation.*;
 // By default, the datasource configuration is excluded in the main module.
 @Import(DataSourceAutoConfiguration.class)
 public class PostgresConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(PostgresConfiguration.class);
 
     DataSource dataSource;
 
@@ -81,7 +85,16 @@ public class PostgresConfiguration {
                         .load();
 
         if (properties.isFlywayRepairOnMigrate()) {
+            log.warn(
+                    "flywayRepairOnMigrate is enabled: Flyway repair() will run on every startup. "
+                            + "Disable this property once the checksum mismatch has been resolved.");
             flyway.repair();
+        }
+
+        if (!properties.isFlywayValidateOnMigrate()) {
+            log.warn(
+                    "flywayValidateOnMigrate is false: migration checksum validation is disabled. "
+                            + "Corrupted or modified migrations will not be detected. Use only as a last resort.");
         }
 
         return flyway;
